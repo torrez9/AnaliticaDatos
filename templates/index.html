@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ferretería · Data Seeder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#070b14;--surface:#0d1117;--surface2:#161b22;--surface3:#1c2333;
+      --border:#21262d;--border2:#30363d;--text:#e6edf3;--muted:#7d8590;
+      --accent:#f97316;--accent2:#3b82f6;--green:#3fb950;--red:#f85149;
+    }
+    html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:#484f58}
+
+    #app{display:flex;flex-direction:column;height:100vh}
+    #main{display:flex;flex:1;overflow:hidden}
+
+    /* Header */
+    #header{
+      height:48px;display:flex;align-items:center;justify-content:space-between;
+      padding:0 20px;border-bottom:1px solid var(--border);
+      background:var(--surface);flex-shrink:0;z-index:10;
+    }
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo-icon{
+      width:28px;height:28px;background:var(--accent);border-radius:6px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .logo-icon svg{width:16px;height:16px;fill:#fff}
+    .logo-title{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+    .logo-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+    .status-pill{
+      display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
+      background:var(--surface2);padding:4px 10px;border-radius:20px;border:1px solid var(--border);
+    }
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--green);
+         box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* Sidebar */
+    #sidebar{
+      width:300px;min-width:300px;border-right:1px solid var(--border);
+      overflow-y:auto;background:var(--surface);display:flex;flex-direction:column;
+    }
+    .section{padding:16px;border-bottom:1px solid var(--border)}
+    .section-label{
+      font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;
+      letter-spacing:1.2px;margin-bottom:10px;display:flex;align-items:center;gap:6px;
+    }
+    .section-label .num{
+      width:16px;height:16px;border-radius:4px;background:var(--surface3);
+      display:flex;align-items:center;justify-content:center;font-size:9px;
+      color:var(--accent);font-weight:700;
+    }
+
+    /* Table grid */
+    #tableGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .tcard{
+      cursor:pointer;padding:10px;border-radius:8px;border:1px solid var(--border);
+      background:var(--surface2);transition:all .15s;
+    }
+    .tcard:hover{border-color:var(--border2);background:var(--surface3)}
+    .tcard.sel{border-color:var(--accent);background:#1c1208}
+    .tcard-icon{
+      width:28px;height:28px;border-radius:6px;background:var(--surface3);
+      display:flex;align-items:center;justify-content:center;margin-bottom:7px;
+      border:1px solid var(--border2);
+    }
+    .tcard.sel .tcard-icon{background:#2d1a0a;border-color:var(--accent)}
+    .tcard-icon svg{width:14px;height:14px;fill:var(--muted)}
+    .tcard.sel .tcard-icon svg{fill:var(--accent)}
+    .tcard-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3}
+    .tcard-key{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+    /* Slider — corregido con appearance estándar */
+    input[type=range]{
+      -webkit-appearance:none;
+      appearance:none;
+      width:100%;height:4px;border-radius:2px;
+      background:var(--surface3);outline:none;cursor:pointer;
+    }
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:14px;height:14px;border-radius:50%;
+      background:var(--accent);cursor:pointer;
+      border:2px solid var(--bg);
+      box-shadow:0 0 0 3px rgba(249,115,22,.2);
+    }
+    input[type=range]::-moz-range-thumb{
+      width:14px;height:14px;border-radius:50%;
+      background:var(--accent);cursor:pointer;
+      border:2px solid var(--bg);
+    }
+    input[type=number]{
+      width:100%;background:var(--surface2);border:1px solid var(--border2);
+      color:var(--text);border-radius:6px;padding:6px 12px;text-align:center;
+      font-size:13px;font-family:'JetBrains Mono',monospace;outline:none;
+    }
+    input[type=number]:focus{border-color:var(--accent)}
+
+    /* Quick buttons */
+    .qbtn-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px}
+    .qbtn{
+      font-size:10px;padding:5px 2px;background:var(--surface2);
+      border:1px solid var(--border);color:var(--muted);border-radius:5px;
+      cursor:pointer;transition:all .15s;text-align:center;
+      font-family:'JetBrains Mono',monospace;
+    }
+    .qbtn:hover{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+    .qbtn.active{background:var(--surface3);color:var(--accent);border-color:var(--accent)}
+
+    /* Pills */
+    .pill-group{display:flex;gap:4px}
+    .pill{
+      flex:1;padding:7px 10px;border-radius:6px;border:1px solid var(--border);
+      background:var(--surface2);color:var(--muted);font-size:12px;font-weight:500;
+      cursor:pointer;text-align:center;transition:all .15s;
+    }
+    .pill:hover{border-color:var(--border2);color:var(--text)}
+    .pill.on{background:var(--surface3);color:var(--text);border-color:var(--accent)}
+
+    /* Format options */
+    .fmt-opt{
+      padding:9px 12px;border-radius:6px;border:1px solid var(--border);
+      background:var(--surface2);cursor:pointer;transition:all .15s;
+      display:flex;align-items:center;gap:10px;margin-bottom:4px;
+    }
+    .fmt-opt:last-child{margin-bottom:0}
+    .fmt-opt:hover{border-color:var(--border2)}
+    .fmt-opt.on{border-color:var(--accent);background:var(--surface3)}
+    .fmt-dot{width:6px;height:6px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all .15s}
+    .fmt-opt.on .fmt-dot{background:var(--accent);border-color:var(--accent)}
+    .fmt-name{font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace}
+    .fmt-desc{font-size:11px;color:var(--muted)}
+
+    /* Info box */
+    .info-box{
+      background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+      padding:10px 12px;font-size:11px;line-height:1.7;color:var(--muted);
+    }
+    .info-box .info-title{font-weight:600;font-size:12px;margin-bottom:3px}
+    .info-box.clean .info-title{color:var(--green)}
+    .info-box.dirty .info-title{color:var(--red)}
+
+    /* Warning box */
+    #warnBox{
+      display:none;background:#1a1205;border:1px solid #4a3010;border-radius:6px;
+      padding:8px 12px;font-size:11px;color:#f59e0b;margin-top:8px;line-height:1.6;
+    }
+    #warnBox strong{color:#fbbf24}
+
+    /* Buttons */
+    .btn{
+      width:100%;padding:9px;border-radius:7px;font-size:12px;font-weight:600;
+      cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;
+      gap:7px;transition:all .15s;letter-spacing:.2px;
+    }
+    .btn-preview{background:var(--accent);color:#fff}
+    .btn-preview:hover:not(:disabled){background:#ea6c0a}
+    .btn-generate{background:var(--accent2);color:#fff}
+    .btn-generate:hover:not(:disabled){background:#2563eb}
+    .btn-download{
+      background:transparent;color:var(--text);
+      border:1px solid var(--border2)!important;
+    }
+    .btn-download:hover:not(:disabled){background:var(--surface2)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn svg{flex-shrink:0}
+
+    /* Right panel */
+    #rightPanel{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+    /* Stats bar */
+    #statsBar{
+      height:36px;display:flex;align-items:center;
+      border-bottom:1px solid var(--border);background:var(--surface);
+      padding:0 16px;flex-shrink:0;overflow-x:auto;
+    }
+    .stat-item{
+      display:flex;align-items:center;gap:6px;font-size:11px;
+      padding:0 14px;border-right:1px solid var(--border);white-space:nowrap;
+    }
+    .stat-item:first-child{padding-left:0}
+    .stat-item:last-child{border-right:none}
+    .stat-label{color:var(--muted)}
+    .stat-val{font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace}
+    .stat-val.accent{color:var(--accent)}
+    .badge{
+      font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;
+      font-family:'JetBrains Mono',monospace;
+    }
+    .badge.clean{background:#0d2818;color:var(--green);border:1px solid #1a4a2a}
+    .badge.dirty{background:#2d0f0e;color:var(--red);border:1px solid #4a1a18}
+
+    /* Toolbar */
+    #toolbar{
+      height:38px;display:flex;align-items:center;gap:6px;padding:0 16px;
+      border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;
+    }
+    .tbtn{
+      padding:4px 10px;font-size:11px;border-radius:5px;border:1px solid var(--border);
+      background:var(--surface2);color:var(--muted);cursor:pointer;
+      display:flex;align-items:center;gap:5px;transition:all .15s;
+    }
+    .tbtn:hover{background:var(--surface3);color:var(--text)}
+    .tbtn svg{width:12px;height:12px;fill:currentColor}
+    .tbtn.danger:hover{background:#2d0f0e;border-color:#4a1a18;color:var(--red)}
+
+    /* Output */
+    #outputArea{flex:1;overflow:auto;background:#0d1117}
+    #emptyState{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100%;gap:12px;
+    }
+    .empty-icon{
+      width:56px;height:56px;border-radius:14px;background:var(--surface2);
+      border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+    }
+    .empty-icon svg{width:28px;height:28px;fill:var(--border2)}
+    .empty-title{font-size:15px;font-weight:700;color:var(--text)}
+    .empty-sub{font-size:12px;color:var(--muted);max-width:320px;text-align:center;line-height:1.6}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:380px;margin-top:8px}
+    .feature-card{
+      background:var(--surface);border:1px solid var(--border);border-radius:8px;
+      padding:12px;text-align:center;
+    }
+    .feature-card .fc-icon{
+      width:32px;height:32px;border-radius:8px;background:var(--surface2);
+      border:1px solid var(--border2);display:flex;align-items:center;
+      justify-content:center;margin:0 auto 8px;
+    }
+    .feature-card .fc-icon svg{width:16px;height:16px;fill:var(--muted)}
+    .feature-card p{font-size:11px;color:var(--muted);line-height:1.5}
+
+    pre#codeBlock{margin:0;padding:0}
+    pre#codeBlock code{
+      display:block;padding:16px 20px;font-family:'JetBrains Mono',monospace;
+      font-size:12px;line-height:1.65;background:#0d1117!important;min-height:100%;
+    }
+
+    /* Progress bar */
+    #progressWrap{
+      position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:transparent;display:none;z-index:5;
+    }
+    #progressBar{
+      height:100%;width:0;background:var(--accent);
+      transition:width .4s ease;box-shadow:0 0 8px var(--accent);
+    }
+
+    /* Spinner */
+    .spin{
+      display:inline-block;width:12px;height:12px;border:2px solid #ffffff33;
+      border-top-color:#fff;border-radius:50%;animation:ro .6s linear infinite;
+    }
+    @keyframes ro{to{transform:rotate(360deg)}}
+
+    #lineCount{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-left:auto}
+    #statMsg{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;
+             text-overflow:ellipsis;max-width:280px}
+
+    /* Size estimate tag */
+    #sizeTag{
+      font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;
+      background:var(--surface2);border:1px solid var(--border);
+      padding:2px 7px;border-radius:4px;margin-top:6px;display:none;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zM3 14h7v7H3v-7z"/></svg>
+      </div>
+      <div>
+        <div class="logo-title">Ferretería Data Seeder</div>
+        <div class="logo-sub">ferreteria · MySQL 8.x</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <span class="dot"></span>
+      <span>Flask · localhost:5000</span>
+    </div>
+  </header>
+
+  <div id="main">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+
+      <!-- 1. Tabla -->
+      <div class="section">
+        <div class="section-label"><span class="num">1</span>Tabla de destino</div>
+        <div id="tableGrid"></div>
+      </div>
+
+      <!-- 2. Cantidad -->
+      <div class="section">
+        <div class="section-label"><span class="num">2</span>Cantidad de registros</div>
+        <input type="range" id="slider" min="1" max="1000000" value="1000" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">1</span>
+          <span style="font-size:13px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace" id="cantLbl">1,000</span>
+          <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">1M</span>
+        </div>
+        <input type="number" id="cantNum" value="1000" min="1" max="1000000">
+        <div id="sizeTag"></div>
+        <div class="qbtn-grid">
+          <button class="qbtn" onclick="setCant(100)">100</button>
+          <button class="qbtn" onclick="setCant(1000)">1K</button>
+          <button class="qbtn" onclick="setCant(10000)">10K</button>
+          <button class="qbtn" onclick="setCant(50000)">50K</button>
+          <button class="qbtn" onclick="setCant(100000)">100K</button>
+          <button class="qbtn" onclick="setCant(1000000)">1M</button>
+        </div>
+        <div id="warnBox"></div>
+      </div>
+
+      <!-- 3. Orden -->
+      <div class="section">
+        <div class="section-label"><span class="num">3</span>Orden de generación</div>
+        <div class="pill-group">
+          <button class="pill on" data-g="orden" data-v="aleatorio"  onclick="setOpt('orden',this)">Aleatorio</button>
+          <button class="pill"    data-g="orden" data-v="secuencial" onclick="setOpt('orden',this)">Secuencial</button>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.6" id="ordenDesc">
+          IDs y valores generados de forma completamente aleatoria.
+        </p>
+      </div>
+
+      <!-- 4. Calidad -->
+      <div class="section">
+        <div class="section-label"><span class="num">4</span>Calidad de datos</div>
+        <div class="pill-group" style="margin-bottom:9px">
+          <button class="pill on" data-g="calidad" data-v="limpio" onclick="setOpt('calidad',this)">Limpio</button>
+          <button class="pill"    data-g="calidad" data-v="sucio"  onclick="setOpt('calidad',this)">Sucio / Dirty</button>
+        </div>
+        <div class="info-box clean" id="calidadInfo">
+          <div class="info-title">Datos Limpios</div>
+          Formatos válidos, FKs coherentes, precios y totales consistentes, emails y cédulas correctas.
+        </div>
+      </div>
+
+      <!-- 5. Formato -->
+      <div class="section">
+        <div class="section-label"><span class="num">5</span>Formato de salida</div>
+        <div id="fmtGroup">
+          <div class="fmt-opt on" data-g="formato" data-v="sql"   onclick="setFmt(this)">
+            <div class="fmt-dot"></div>
+            <div>
+              <div class="fmt-name" style="color:#f97316">SQL</div>
+              <div class="fmt-desc">INSERT INTO por cada fila</div>
+            </div>
+          </div>
+          <div class="fmt-opt" data-g="formato" data-v="mysql" onclick="setFmt(this)">
+            <div class="fmt-dot"></div>
+            <div>
+              <div class="fmt-name" style="color:#3b82f6">MySQL Dump</div>
+              <div class="fmt-desc">Bulk INSERT optimizado para importar</div>
+            </div>
+          </div>
+          <div class="fmt-opt" data-g="formato" data-v="texto" onclick="setFmt(this)">
+            <div class="fmt-dot"></div>
+            <div>
+              <div class="fmt-name" style="color:#3fb950">CSV</div>
+              <div class="fmt-desc">Separado por comas, compatible Excel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="section" style="border-bottom:none;display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-preview" id="btnPrev" onclick="gen(true)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          <span id="prevTxt">Vista Previa — 20 filas</span>
+        </button>
+        <button class="btn btn-generate" id="btnFull" onclick="gen(false)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.81 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 19.07 22 15.76 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.05C5.95 2.55 2 6.82 2 12c0 3.76 2.09 7.07 5.22 8.78L6 22h5v-5l-2.28 2.28C7.81 18 6 15.21 6 12c0-4.08 3.05-7.44 7-7.93V2.05z"/></svg>
+          <span id="fullTxt">Generar Completo</span>
+        </button>
+        <button class="btn btn-download" onclick="download()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Descargar Archivo
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT PANEL -->
+    <div id="rightPanel">
+
+      <!-- Stats bar -->
+      <div id="statsBar">
+        <div class="stat-item">
+          <span class="stat-label">Tabla</span>
+          <span class="stat-val accent" id="statTabla">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Registros</span>
+          <span class="stat-val" id="statTotal">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Calidad</span>
+          <span class="badge clean" id="statCalidad">Limpio</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Formato</span>
+          <span class="stat-val" style="color:var(--accent2)" id="statFormato">sql</span>
+        </div>
+        <div class="stat-item" style="border:none">
+          <span class="stat-label" id="statMsg">Configura las opciones y genera datos</span>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div id="toolbar">
+        <button class="tbtn" onclick="copyOutput()">
+          <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          Copiar código
+        </button>
+        <button class="tbtn danger" onclick="clearOutput()">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          Limpiar
+        </button>
+        <span id="lineCount"></span>
+      </div>
+
+      <!-- Output -->
+      <div id="outputArea">
+        <div id="emptyState">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+          </div>
+          <div class="empty-title">Ferretería Data Seeder</div>
+          <div class="empty-sub">Selecciona una tabla, configura los parámetros y haz clic en generar</div>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></div>
+              <p>Aleatorio o secuencial con control total</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5z"/></svg></div>
+              <p>Datos limpios o sucios para validación</p>
+            </div>
+            <div class="feature-card">
+              <div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></div>
+              <p>Exporta SQL, MySQL Dump o CSV hasta 1M</p>
+            </div>
+          </div>
+        </div>
+        <pre id="codeBlock" style="display:none"><code id="codeOut" class="language-sql"></code></pre>
+      </div>
+
+      <!-- Progress bar -->
+      <div id="progressWrap">
+        <div id="progressBar"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Estado ─────────────────────────────────────────────────────
+const state = { tabla:'clientes', orden:'aleatorio', calidad:'limpio', formato:'sql' }
+let lastOutput = ''
+let SERVER_LIMITS = { preview:20, generate:50000, download:1000000 }
+let estimateTimer = null
+
+// ── Tablas ─────────────────────────────────────────────────────
+const TABLES = [
+  { key:'categorias',    label:'Categorías',    icon:'<path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>' },
+  { key:'subcategorias', label:'Subcategorías', icon:'<path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>' },
+  { key:'clientes',      label:'Clientes',      icon:'<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>' },
+  { key:'productos',     label:'Productos',     icon:'<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>' },
+  { key:'facturas',      label:'Facturas',      icon:'<path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>' },
+  { key:'detalle_facs',  label:'Det. Facturas', icon:'<path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>' },
+]
+
+function renderTables(){
+  document.getElementById('tableGrid').innerHTML = TABLES.map(t => `
+    <div class="tcard ${t.key===state.tabla?'sel':''}" onclick="selectTable('${t.key}')">
+      <div class="tcard-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${t.icon}</svg>
+      </div>
+      <div class="tcard-name">${t.label}</div>
+      <div class="tcard-key">${t.key}</div>
+    </div>`).join('')
+}
+
+function selectTable(k){
+  state.tabla = k
+  document.getElementById('statTabla').textContent = k
+  renderTables()
+  triggerEstimate()
+}
+
+// ── Cantidad ────────────────────────────────────────────────────
+const slider  = document.getElementById('slider')
+const cantNum = document.getElementById('cantNum')
+slider.addEventListener('input',   e => setCant(+e.target.value, false))
+cantNum.addEventListener('change', e => setCant(+e.target.value, true))
+
+function setCant(n, updateSlider=true){
+  n = Math.max(1, Math.min(1000000, n|0))
+  if(updateSlider) slider.value = n
+  cantNum.value = n
+  document.getElementById('cantLbl').textContent = n.toLocaleString('es-NI')
+
+  // highlight active qbtn
+  document.querySelectorAll('.qbtn').forEach(b => {
+    b.classList.toggle('active', +b.textContent.replace('K','000').replace('M','000000') === n ||
+      (b.textContent==='1K'&&n===1000)||(b.textContent==='10K'&&n===10000)||
+      (b.textContent==='50K'&&n===50000)||(b.textContent==='100K'&&n===100000)||
+      (b.textContent==='1M'&&n===1000000))
+  })
+
+  triggerEstimate()
+}
+
+function triggerEstimate(){
+  clearTimeout(estimateTimer)
+  estimateTimer = setTimeout(estimateSize, 500)
+}
+
+async function estimateSize(){
+  const n    = +cantNum.value
+  const warn = document.getElementById('warnBox')
+  const tag  = document.getElementById('sizeTag')
+  try {
+    const r = await fetch('/api/info',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ tabla:state.tabla, cantidad:n, formato:state.formato })
+    })
+    const d = await r.json()
+    const mb = d.estimated_mb
+
+    tag.style.display = 'block'
+    tag.textContent   = `~${mb} MB estimado`
+
+    if(d.use_download){
+      warn.style.display = 'block'
+      warn.innerHTML = `<strong>Límite del editor: ${SERVER_LIMITS.generate.toLocaleString()} registros.</strong><br>
+        Usa <em>Descargar Archivo</em> para generar hasta 1,000,000 registros (~${mb} MB).`
+    } else if(mb > 50){
+      warn.style.display = 'block'
+      warn.innerHTML = `Archivo grande estimado: <strong>${mb} MB</strong>. Se recomienda Descargar Archivo.`
+    } else if(n > 10000){
+      warn.style.display = 'block'
+      warn.innerHTML = `Tamaño estimado del archivo: <strong>${mb} MB</strong>.`
+    } else {
+      warn.style.display = 'none'
+    }
+  } catch(e){
+    tag.style.display = 'none'
+    warn.style.display = 'none'
+  }
+}
+
+// ── Opciones ────────────────────────────────────────────────────
+function setOpt(group, btn){
+  document.querySelectorAll(`[data-g="${group}"]`).forEach(b => b.classList.remove('on'))
+  btn.classList.add('on')
+  state[group] = btn.dataset.v
+  if(group === 'orden'){
+    document.getElementById('ordenDesc').textContent =
+      state.orden === 'aleatorio'
+        ? 'IDs y valores generados de forma completamente aleatoria.'
+        : 'IDs incrementales y datos ordenados en secuencia lógica.'
+  }
+  if(group === 'calidad'){
+    const clean = state.calidad === 'limpio'
+    document.getElementById('statCalidad').className = 'badge ' + (clean?'clean':'dirty')
+    document.getElementById('statCalidad').textContent = clean ? 'Limpio' : 'Sucio'
+    const box = document.getElementById('calidadInfo')
+    box.className = 'info-box ' + (clean?'clean':'dirty')
+    box.innerHTML = clean
+      ? '<div class="info-title">Datos Limpios</div>Formatos válidos, FKs coherentes, precios y totales consistentes, emails y cédulas correctas.'
+      : '<div class="info-title">Datos Sucios</div>NULLs inesperados, valores negativos, emails malformados, totales inconsistentes y cadenas truncadas.'
+  }
+}
+
+function setFmt(el){
+  document.querySelectorAll('#fmtGroup .fmt-opt').forEach(e => e.classList.remove('on'))
+  el.classList.add('on')
+  state.formato = el.dataset.v
+  document.getElementById('statFormato').textContent = state.formato
+  triggerEstimate()
+}
+
+// ── Progress bar ─────────────────────────────────────────────────
+function showProgress(v){
+  const w = document.getElementById('progressWrap')
+  const b = document.getElementById('progressBar')
+  if(v === null){ w.style.display='none'; b.style.width='0'; return }
+  w.style.display = 'block'
+  b.style.width   = v + '%'
+}
+
+// ── Generar ──────────────────────────────────────────────────────
+function setLoading(btnId, txtId, on, label=''){
+  const btn = document.getElementById(btnId)
+  const lbl = document.getElementById(txtId)
+  btn.disabled  = on
+  lbl.innerHTML = on ? '<span class="spin"></span> Procesando...' : label
+}
+
+async function gen(preview){
+  const cant = +cantNum.value
+  if(!preview && cant > SERVER_LIMITS.generate){
+    document.getElementById('statMsg').textContent =
+      `Usa Descargar Archivo para cantidades mayores a ${SERVER_LIMITS.generate.toLocaleString()}`
+    return
+  }
+  const bId = preview?'btnPrev':'btnFull'
+  const tId = preview?'prevTxt':'fullTxt'
+  const def = preview?'Vista Previa — 20 filas':'Generar Completo'
+  setLoading(bId, tId, true)
+  document.getElementById('statMsg').textContent = 'Generando datos...'
+  showProgress(20)
+
+  try{
+    showProgress(45)
+    const res  = await fetch('/api/generate',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({tabla:state.tabla,cantidad:cant,orden:state.orden,
+                            calidad:state.calidad,formato:state.formato,preview})
+    })
+    showProgress(80)
+    const data = await res.json()
+    showProgress(100)
+
+    lastOutput = data.full
+    const shown = preview ? data.preview : data.full
+    const lines = shown.split('\n').length
+
+    document.getElementById('emptyState').style.display = 'none'
+    document.getElementById('codeBlock').style.display  = 'block'
+
+    const code = document.getElementById('codeOut')
+    code.className   = `language-${state.formato==='texto'?'plaintext':'sql'}`
+    code.textContent = shown
+    hljs.highlightElement(code)
+
+    document.getElementById('statTotal').textContent = data.total.toLocaleString('es-NI')
+    document.getElementById('statTabla').textContent = state.tabla
+    document.getElementById('lineCount').textContent = lines.toLocaleString('es-NI') + ' líneas'
+    document.getElementById('statMsg').textContent   = preview
+      ? `Vista previa: 20 de ${data.total.toLocaleString('es-NI')} registros`
+      : `Generados: ${data.total.toLocaleString('es-NI')} registros en ${data.elapsed}s`
+
+    setTimeout(() => showProgress(null), 700)
+  } catch(e){
+    document.getElementById('statMsg').textContent = 'Error: ' + e.message
+    showProgress(null)
+  } finally {
+    setLoading(bId, tId, false, def)
+  }
+}
+
+// ── Descargar ─────────────────────────────────────────────────
+async function download(){
+  const cant = +cantNum.value
+  document.getElementById('statMsg').textContent = 'Preparando descarga...'
+  showProgress(15)
+  try{
+    const res  = await fetch('/api/download',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({tabla:state.tabla,cantidad:cant,orden:state.orden,
+                            calidad:state.calidad,formato:state.formato})
+    })
+    showProgress(70)
+    const blob = await res.blob()
+    const cd   = res.headers.get('Content-Disposition') || ''
+    const name = cd.match(/filename=([^;]+)/)?.[1]?.trim() || `seed_${state.tabla}_${cant}.sql`
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href = url; a.download = name; a.click()
+    URL.revokeObjectURL(url)
+    showProgress(100)
+    document.getElementById('statMsg').textContent = `Descargado: ${name}`
+    setTimeout(() => showProgress(null), 700)
+  } catch(e){
+    document.getElementById('statMsg').textContent = 'Error al descargar'
+    showProgress(null)
+  }
+}
+
+// ── Utilidades ────────────────────────────────────────────────
+function copyOutput(){
+  const txt = document.getElementById('codeOut').textContent
+  if(!txt.trim()) return
+  navigator.clipboard.writeText(txt).then(() => {
+    document.getElementById('statMsg').textContent = 'Copiado al portapapeles'
+    setTimeout(() => document.getElementById('statMsg').textContent = '', 2500)
+  })
+}
+
+function clearOutput(){
+  document.getElementById('codeBlock').style.display  = 'none'
+  document.getElementById('emptyState').style.display = 'flex'
+  document.getElementById('codeOut').textContent = ''
+  document.getElementById('statTotal').textContent = '0'
+  document.getElementById('lineCount').textContent = ''
+  document.getElementById('statMsg').textContent   = 'Configura las opciones y genera datos'
+  lastOutput = ''
+}
+
+// ── Init ──────────────────────────────────────────────────────
+async function loadLimits(){
+  try{
+    const r = await fetch('/api/limits')
+    SERVER_LIMITS = await r.json()
+    slider.max  = SERVER_LIMITS.download
+    cantNum.max = SERVER_LIMITS.download
+  } catch(e){ console.warn('Limites no disponibles:', e) }
+}
+
+renderTables()
+setCant(1000)
+loadLimits()
+</script>
+</body>
+</html>
